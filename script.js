@@ -1,3 +1,10 @@
+let playerWins = 0;
+let computerWins = 0;
+const current = document.querySelector("#current");
+const runningTotal = document.querySelector("#runningtotal");
+const gameResult = document.querySelector("#gameresult");
+
+
 function computerChoice() {
 	let randomNum = Math.ceil(Math.random() * 3);
 	if (randomNum === 1) {return "rock";}
@@ -10,27 +17,35 @@ function cap(str) {
 }
 
 function playRound(playerSelection, computerSelection) {
-	let ps = playerSelection.toLowerCase();
-	let cs = computerSelection.toLowerCase();
+	let ps = playerSelection;
+	let cs = computerSelection;
 	let winningChoice;
 	let losingChoice;
 	let playerResult;
 	let resultMessage;
+	let statusMessage;
+	let tieResult;
+
+	// If starting a new game, delete result message for previous game
+	if (gameResult.textContent) {
+		gameResult.textContent = "";
+	}
 
 	// Check for tie
 	if (ps === cs) {
-		let tieResult = cap(ps);
-		return `Tie! You both picked ${tieResult}.`;
+		tieResult = cap(ps);
+		current.textContent = `Tie! You both picked ${tieResult}.`;
+		return;
 	}
-	if (ps === "rock") {
+	else if (ps === "rock") {
 		if (cs === "scissors") {playerResult = "win";}
 		else {playerResult = "lose";}
 	}
-	if (ps === "paper") {
+	else if (ps === "paper") {
 		if (cs === "rock") {playerResult = "win";}
 		else {playerResult = "lose";}
 	}
-	if (ps === "scissors") {
+	else if (ps === "scissors") {
 		if (cs === "paper") {playerResult = "win";}
 		else {playerResult = "lose";}
 	}
@@ -39,41 +54,37 @@ function playRound(playerSelection, computerSelection) {
 	if (playerResult === "win") {
 		winningChoice = cap(ps);
 		losingChoice = cap(cs);
-	}
-	else {
+		playerWins++;
+	} else if (playerResult === "lose") {
 		winningChoice = cap(cs);
 		losingChoice = cap(ps);
+		computerWins++;
 	}
 
-	resultMessage = `You ${playerResult}! ${winningChoice} beats ${losingChoice}.`;
-	return resultMessage;
-}
+	resultMessage = `You ${playerResult} this round: ${winningChoice} beats ${losingChoice}.`;
+	statusMessage = `Player: ${playerWins}. Computer: ${computerWins}.`;
 
-function game() {
-	let playerChoice;
-	let gameResult;
-	let playerWins = 0;
-	const options = ["rock", "paper", "scissors"];
-	console.log("Let's play!");
+	current.textContent = resultMessage;
+	runningTotal.textContent = statusMessage;
 
-	for (let i = 0; i < 5; i++) {
-		console.log(`Round ${(i+1).toString()}:`);
-		playerChoice = prompt("What do you pick: rock, paper, or scissors?");
-		// Check for invalid input
-		while (options.includes(playerChoice.toLowerCase() === false)) {
-			playerChoice = prompt("The options are rock, paper, or scissors. Which do you pick?");
-		}
-		gameResult = playRound(playerChoice, computerChoice());
-		if (gameResult.indexOf("win") > -1) {
-			playerWins++;
-		}
-		console.log(gameResult);
-	}
-	if (playerWins >= 3) {
-		console.log("You are the winner of this game :D");
-	} else {
-		console.log("You didn't win this time :/ Play again?");
+	// Check if either player has reached five points yet
+	if (playerWins >= 5) {
+		gameResult.textContent = "You win this game!";
+		playerWins = 0;
+		computerWins = 0;
+	} else if (computerWins >= 5) {
+		gameResult.textContent = "The computer wins this game :( Play again?";
+		playerWins = 0;
+		computerWins = 0;
 	}
 }
+
+const buttons = document.querySelectorAll("button");
+buttons.forEach(button => {
+	button.addEventListener("click", (e) => {
+		let playerChoice = button.id;
+		playRound(playerChoice, computerChoice());
+	});
+});
 
 ///////
